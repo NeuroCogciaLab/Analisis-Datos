@@ -30,7 +30,7 @@ Se incluyen las siguientes variables categóricas:
 
 
 * ```inter_dom``` Tipos de estudiantes: Estudiante internacional (Inter) o estudiante nacional (Dom).	
-* ```Region``` Regiones de origen de los estudiantes: Japón (JAP), Asia oriental excepto Japón (EA), Asia meridional (EA), Sudeste asiático (SEA) u otras regiones (Others).
+* ```Region``` Regiones de origen de los estudiantes: Japón (JAP), Asia oriental excepto Japón (EA), Asia meridional (SA), Sudeste asiático (SEA) u otras regiones (Others).
 * ```Gender``` Género de los estudiantes: Masculino (Male) o Femenino (Female). 
 * ```Academic```	El nivel académico actual de los estudiantes: Pregrado (Under) o Posgrado (Grad).
 * ```Stay_Cate```	Cuánto tiempo han estado los estudiantes en la universidad: 1 año (Short), 2–3 años (Medium) o al menos 4 años (Long)	
@@ -57,8 +57,8 @@ Se incluyen las siguientes variables categóricas:
 Se incluyen las siguientes variables numéricas:
 * ```Age```	Edad actual de los estudiantes.
 * ```Stay```	cuanto tiempo llevan en la universidad.
-* ```Jap```	Escala de autoevaluación que va del 1 al 5 con respecto al dominio del japonés	.
-* ```Eng```	Escala de autoevaluación del 1 al 5 sobre el dominio del idioma inglés.
+* ```Japanese```	Escala de autoevaluación que va del 1 al 5 con respecto al dominio del japonés	.
+* ```English```	Escala de autoevaluación del 1 al 5 sobre el dominio del idioma inglés.
 * ```ToDep```	Puntuación total de depresión medida por PHQ-9.
 * ```ToSC```	Conectividad social total medida por SCS.
 * ```APD```	La puntuación total de discriminación percibida medida por el cuestionario ASISS.
