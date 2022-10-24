@@ -24,7 +24,9 @@ Este repositorio contiene scripts para ejecutar análisis de datos en R
 ![clone_repository](https://experimentalbehaviour.files.wordpress.com/2018/01/screenshot6.png?w=584)
 
 ### Datos de ejemplo 📊
-Para los scripts se empleó el conjunto de datos de acceso abierto publicado por [Nguyen et al. (2019)](https://www.mdpi.com/2306-5729/4/3/124/htm). Este conjunto de datos contiene registro de variables sobre la condición de salud mental y comportamientos de búsqueda de ayuda de estudiantes internacionales y nacionales en una universidad internacional de Japón. Se incluyen las siguientes variables categóricas: 
+Para los scripts se empleó el conjunto de datos de acceso abierto publicado por [Nguyen et al. (2019)](https://www.mdpi.com/2306-5729/4/3/124/htm). Este conjunto de datos contiene registro de variables sobre la condición de salud mental y comportamientos de búsqueda de ayuda de estudiantes internacionales y nacionales en una universidad internacional de Japón. 
+
+Se incluyen las siguientes variables categóricas: 
 
 
 * ```inter_dom``` Tipos de estudiantes: Estudiante internacional (Inter) o estudiante nacional (Dom).	
@@ -52,3 +54,29 @@ Para los scripts se empleó el conjunto de datos de acceso abierto publicado por
 * ```Internet_bi```	Si los estudiantes están dispuestos a buscar ayuda en Internet cuando se encuentran con dificultades emocionales (Yes).	
 * ```Others_bi```	Si los estudiantes están dispuestos a buscar ayuda de otras fuentes no mencionadas anteriormente cuando se encuentran con dificultades emocionales (Yes).	
 
+Se incluyen las siguientes variables numéricas:
+* ```Age```	Edad actual de los estudiantes.
+* ```Stay```	cuanto tiempo llevan en la universidad.
+* ```Jap```	Escala de autoevaluación que va del 1 al 5 con respecto al dominio del japonés	.
+* ```Eng```	Escala de autoevaluación del 1 al 5 sobre el dominio del idioma inglés.
+* ```ToDep```	Puntuación total de depresión medida por PHQ-9.
+* ```ToSC```	Conectividad social total medida por SCS.
+* ```APD```	La puntuación total de discriminación percibida medida por el cuestionario ASISS.
+* ```AHome```	La puntuación total de nostalgia medida por el cuestionario ASISS.
+* ```APH```	El puntaje total de odio percibido medido por el cuestionario ASISS.
+* ```AFear```	La puntuación total de miedo medida por el cuestionario ASISS.
+* ```ACS```	La puntuación total de choque cultural medida por el cuestionario ASISS.
+* ```AGuilt```	La puntuación total de culpabilidad medida por el cuestionario ASISS.
+* ```AMiscell```	La puntuación total de miscelánea medida por el cuestionario ASISS.
+* ```ToAS```	Puntaje total de Estrés Aculturativo.
+* ```Partner```	Voluntad de buscar ayuda de una pareja íntima cuando los estudiantes enfrentan dificultades emocionales.
+* ```Friends```	Voluntad de buscar ayuda de amigos cuando los estudiantes enfrentan dificultades emocionales.
+* ```Parents```	Voluntad de buscar ayuda de los padres cuando los estudiantes enfrentan dificultades emocionales.
+* ```Relative```	Voluntad de buscar ayuda de parientes o miembros de la familia cuando los estudiantes enfrentan dificultades emocionales.
+* ```Profess```	Disposición a buscar ayuda de profesionales cuando los estudiantes enfrentan dificultades emocionales.
+* ```Phone```	Voluntad de buscar ayuda en la línea telefónica cuando los estudiantes enfrentan dificultades emocionales.
+* ```Doctor```	Voluntad de buscar ayuda de los médicos cuando los estudiantes enfrentan dificultades emocionales.
+* ```Reli```	Voluntad de buscar ayuda de un líder religioso cuando los estudiantes enfrentan dificultades emocionales.
+* ```Alone```	Voluntad de resolver problemas por sí mismos cuando los estudiantes enfrentan dificultades emocionales.	
+* ```Others```	Voluntad de buscar ayuda de otras fuentes no mencionadas anteriormente cuando los estudiantes enfrentan dificultades emocionales.
+* ```Internet```	Voluntad de buscar ayuda en Internet cuando los estudiantes se encuentran con dificultades emocionales.
