@@ -39,4 +39,4 @@ vignettes/*.pdf
 .Renviron
 
 # Output de Rmd
-.html
+Normalizacion_homogeneidad.html
