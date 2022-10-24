@@ -1,0 +1,138 @@
+---
+title: "Análisis de datos"
+author: "Emma Botello-Estrada"
+date:  "`r Sys.Date()`"
+output: rmdformats::downcute
+---
+
+# Cargando las librerias a usar
+R tiene un amplio catálogo de librerias que pueden extender las funciones a emplear en el ambiente de trabajo. La forma básica de usarlas es instalando el paquete externo ejecutando una vez el comando ```install.packages()``` y luego llamando el paquete al ambiente de trabajo cada vez que sea necesario empleando al incio de un script la función ```library()```. Sin embargo, el paquete ```pacman``` con su función ```p_load()``` permite en un solo comando instalar las librerías que no se tenga y cargarlas al ambiente de trabajo. 
+
+Esta es la forma clásica:
+```{r Ejemplo_carga_clasica, eval=FALSE, include=TRUE}
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+Vamos a optar por este uso: 
+```{r Librerias, echo=TRUE, message=FALSE, warning=FALSE}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, nortest, ggplot2)
+```
+
+# Cargando datos en RStudio
+Se pueden usar funciones que inician con "read" para cargar datos, por ejemplo ```read.csv()``` o la función ```read_xlsx()``` del paquete ```readxl```.  
+
+Con estas funciones R suele cargar el objeto como tipo de dato "data.frame", que es un formato donde es posible combinar en un solo objeto datos de otros tipos (character, integer, numeric, logical, factor). Se puede comprobar la estructura usando la función ```str()```.
+
+```{r Cargando_datos, echo=TRUE, message=FALSE, warning=FALSE}
+BD <- read.csv(file = "./data-04-00124-s001/data.csv")
+str(BD)
+```
+
+Eliminamos participantes con datos faltantes: 
+```{r Borrando_nas, echo=TRUE}
+BD <- na.omit(BD)
+```
+
+
+# Obteniendo descriptivos
+
+Para comenzar a explorar los datos de una variable es conveniente calcular las medidas de estadística descriptiva. Se puede hacer esto empleando la función ```group_by()``` para resumir los datos por grupo usando también ```summarise()```
+
+Por ejemplo, para el conjunto de datos cargado observemos los descriptivos para la variable de edad:
+
+
+```{r Descriptivos, echo=TRUE, message=FALSE, warning=FALSE}
+BD %>% group_by(inter_dom) %>% summarise(
+  media= mean(Age),
+  mediana= median(Age),
+  ds= sd(Age),
+  varianza= var(Age),
+  minimo= min(Age),
+  maximo= max(Age),
+  muestra= n(),
+  error_estandar=ds/sqrt(muestra),
+  i_confianza_low= media-2*error_estandar,
+  i_confianza_up= media+2*error_estandar
+) %>% na.omit()
+```
+
+Notamos que el número de casos (muestra) es diferente para ambos grupos (nacional vs internacional), por motivos prácticos vamos a hacer que ambos grupos tengan la misma cantidad de estudiantes, seleccionando al azar los casos que van a eliminarse (se tienen 176 estudiantes internacionales, se eliminarán 110 para tener 66). Para ello primero generamos una variable que identifique a cada participante (ID)
+
+```{r}
+BD<- BD %>% mutate(ID=1:242)
+```
+
+Ahora elegimos al azar a 134 participantes del grupo de estudiantes internacionales y los eliminamos de nuestro conjunto de datos
+```{r Seleccion_azar, echo=TRUE}
+set.seed(123) # Se pone una semilla para que siempre salga la misma selección a pesar de que se hace al azar
+
+IDs_seleccionados <-BD %>% filter(inter_dom=="Inter") %>% 
+  select(ID) %>% 
+  sample_n(size = 110)
+
+BD<- BD %>% filter(!ID %in% IDs_seleccionados$ID)
+```
+
+Ahora vemos de nuevo los descriptivos:
+
+```{r Descriptivos_final, echo=TRUE, message=FALSE, warning=FALSE}
+BD %>% group_by(inter_dom) %>% summarise(
+  media= mean(Age),
+  mediana= median(Age),
+  ds= sd(Age),
+  varianza= var(Age),
+  minimo= min(Age),
+  maximo= max(Age),
+  muestra= n(),
+  error_estandar=ds/sqrt(muestra),
+  i_confianza_low= media-2*error_estandar,
+  i_confianza_up= media+2*error_estandar
+) %>% na.omit()
+```
+
+# Normalidad de los datos
+
+Se emplea el test de Kolmogorov-Smirnov con la modificación de Lilliefors, pues el tamaño de la muestra de cada grupo es mayor a 50.  
+```{r prueba_normalidad, echo=TRUE, message=FALSE, warning=FALSE}
+# Muestra menor a 50 participantes
+#shapiro.test(BD$Age[BD$inter_dom=="Inter"]) 
+#shapiro.test(BD$Age[BD$inter_dom=="Dom"]) 
+
+# Muestra mayor a 50 participantes
+lillie.test(BD$Age[BD$inter_dom=="Inter"]) 
+lillie.test(BD$Age[BD$inter_dom=="Dom"]) 
+```
+Tanto para el grupo de estudiantes internacionales como para los nacionales, se obtiene un p-value menor de 0.05, por lo cual se concluye que los datos de edad no cumplen el supuesto de normalidad. Se puede comprobar visualmente que hay una distribución sesgada a la izquierda:
+
+```{r}
+ggplot(BD, aes(x=Age, color=inter_dom)) +
+  geom_density() +
+  scale_color_manual(values = c("#42D9C8","#D63230"))+
+       theme_minimal()+
+      labs(title = 'Distribución por tipo de estudiante',
+       color = 'Grupo',
+       x = 'Edad', 
+       y='Densidad')
+```
+
+Comprobamos la normalidad de otra variable (ToDep, puntuación total de depresión):
+
+```{r Normalidad_dep, echo=TRUE}
+lillie.test(BD$ToDep[BD$inter_dom=="Inter"]) 
+lillie.test(BD$ToDep[BD$inter_dom=="Dom"]) 
+```
+Tanto para el grupo de estudiantes internacionales como para los nacionales, se obtiene un p-value mayor de 0.05, por lo cual se concluye que los datos de edad cumplen el supuesto de normalidad. Se puede comprobar visualmente que hay una distribución similar a la de la curva normal:
+
+```{r}
+ggplot(BD, aes(x=ToDep, color=inter_dom)) +
+  geom_density() +
+  scale_color_manual(values = c("#42D9C8","#D63230"))+
+       theme_minimal()+
+      labs(title = 'Distribución por tipo de estudiante',
+       color = 'Grupo',
+       x = 'Puntuación total de depresión', 
+       y='Densidad')
+```
+
