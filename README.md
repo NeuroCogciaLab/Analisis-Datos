@@ -2,7 +2,7 @@
 Este repositorio contiene scripts para ejecutar análisis de datos en R
 
 ### Descargando este repositorio 🔽
-1. Para tener acceso a los datos en tu RStudio debes clonar el repositorio. Ubica el icono code en la parte superior de esta página y copia la URL de la opción ‘HTTPS’. 
+1. Para tener acceso a los datos en tu RStudio debes clonar el repositorio. Ubica el icono code en la parte superior de esta página y copia la URL de la opción ```HTTPS```. 
 
 
 ![code_https](https://1.bp.blogspot.com/-C3PTF_S7P0A/YLu6SzycxCI/AAAAAAABZeo/oBqXs5HLq8kCg2-EIf6Gn6bTujn_k8AdwCLcBGAsYHQ/s423/01.png)
