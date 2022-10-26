@@ -1,6 +1,6 @@
 ---
-title: "Análisis de datos"
-author: "Emma Botello-Estrada"
+title: "Análisis de datos: Supuestos de estadística paramétrica"
+author: "Emma Y. Botello-Estrada"
 date:  "`r Sys.Date()`"
 output: rmdformats::downcute
 ---
@@ -26,7 +26,7 @@ Se pueden usar funciones que inician con "read" para cargar datos, por ejemplo `
 Con estas funciones R suele cargar el objeto como tipo de dato "data.frame", que es un formato donde es posible combinar en un solo objeto datos de otros tipos (character, integer, numeric, logical, factor). Se puede comprobar la estructura usando la función ```str()```.
 
 ```{r Cargando_datos, echo=TRUE, message=FALSE, warning=FALSE}
-BD <- read.csv(file = "./data-04-00124-s001/data.csv")
+BD <- read.csv(file = "../data-04-00124-s001/data.csv")
 str(BD)
 ```
 
@@ -124,7 +124,7 @@ Dado que los datos no cumplen el supuesto de normalidad, se pone a prueba el sup
 car::leveneTest(y=BD$Age, group = BD$inter_dom, center = median)
 ```
 Con un p-value mayor de 0.05, no podemos rechazar la hipótesis nula. Por lo tanto suponemos homogeneidad de varianzas (no se encuentran diferencias significativas entre las varianzas de los dos grupos). Se observa este hallazgo visualmente:
-```{r Boxplot, echo=TRUE, message=FALSE, warning=FALSE}
+```{r Boxplot_edad, echo=TRUE, message=FALSE, warning=FALSE}
 ggplot(data = BD, aes(x = inter_dom, y = Age, colour = inter_dom)) +
   geom_boxplot() +
   labs(title = 'Edad por grupo',
@@ -162,7 +162,7 @@ bartlett.test(BD$ToDep~BD$inter_dom)
 Como el p-value es un valor mayor de 0.05, aceptamos la hipótesis nula (H0). Esto nos indica que nuestras dos muestras presentan varianzas iguales. Es decir: no se encuentran diferencias significativas entre las varianzas de los dos grupos.    
 
 Se observa este hallazgo visualmente:
-```{r Boxplot, echo=TRUE, message=FALSE, warning=FALSE}
+```{r Boxplot_dep, echo=TRUE, message=FALSE, warning=FALSE}
 ggplot(data = BD, aes(x = inter_dom, y = ToDep, colour = inter_dom)) +
   geom_boxplot() +
   labs(title = 'Puntuación total de depresión por tipo de estudiante.',
