@@ -17,7 +17,7 @@ library(tidyverse)
 Vamos a optar por este uso: 
 ```{r Librerias, echo=TRUE, message=FALSE, warning=FALSE}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, nortest, ggplot2)
+pacman::p_load(tidyverse, nortest, ggplot2,car)
 ```
 
 # Cargando datos en RStudio
@@ -92,17 +92,18 @@ BD %>% group_by(inter_dom) %>% summarise(
 ) %>% na.omit()
 ```
 
-# Normalidad de los datos
+# Normalidad y homocedasticidad de los datos
 
 Se emplea el test de Kolmogorov-Smirnov con la modificación de Lilliefors, pues el tamaño de la muestra de cada grupo es mayor a 50.  
+
 ```{r prueba_normalidad, echo=TRUE, message=FALSE, warning=FALSE}
 # Muestra menor a 50 participantes
 #shapiro.test(BD$Age[BD$inter_dom=="Inter"]) 
 #shapiro.test(BD$Age[BD$inter_dom=="Dom"]) 
 
 # Muestra mayor a 50 participantes
-lillie.test(BD$Age[BD$inter_dom=="Inter"]) 
-lillie.test(BD$Age[BD$inter_dom=="Dom"]) 
+nortest::lillie.test(BD$Age[BD$inter_dom=="Inter"]) 
+nortest::lillie.test(BD$Age[BD$inter_dom=="Dom"]) 
 ```
 Tanto para el grupo de estudiantes internacionales como para los nacionales, se obtiene un p-value menor de 0.05, por lo cual se concluye que los datos de edad no cumplen el supuesto de normalidad. Se puede comprobar visualmente que hay una distribución sesgada a la izquierda:
 
@@ -116,6 +117,23 @@ ggplot(BD, aes(x=Age, color=inter_dom)) +
        x = 'Edad', 
        y='Densidad')
 ```
+
+Dado que los datos no cumplen el supuesto de normalidad, se pone a prueba el supuesto de homocedasticidad con la prueba de Levene
+
+```{r Levene, echo=TRUE, message=FALSE, warning=FALSE}
+car::leveneTest(y=BD$Age, group = BD$inter_dom, center = median)
+```
+Con un p-value mayor de 0.05, no podemos rechazar la hipótesis nula. Por lo tanto suponemos homogeneidad de varianzas (no se encuentran diferencias significativas entre las varianzas de los dos grupos). Se observa este hallazgo visualmente:
+```{r Boxplot, echo=TRUE, message=FALSE, warning=FALSE}
+ggplot(data = BD, aes(x = inter_dom, y = Age, colour = inter_dom)) +
+  geom_boxplot() +
+  labs(title = 'Edad por grupo',
+       x = 'Tipo de estudiantes',
+       y = 'Edad') +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
 
 Comprobamos la normalidad de otra variable (ToDep, puntuación total de depresión):
 
@@ -136,3 +154,21 @@ ggplot(BD, aes(x=ToDep, color=inter_dom)) +
        y='Densidad')
 ```
 
+Dado que los datos cumplen el supuesto de normalidad, se pone a prueba el supuesto de homocedasticidad con la prueba de Bartlett 
+
+```{r Bartlett, echo=TRUE, message=FALSE, warning=FALSE}
+bartlett.test(BD$ToDep~BD$inter_dom)
+```
+Como el p-value es un valor mayor de 0.05, aceptamos la hipótesis nula (H0). Esto nos indica que nuestras dos muestras presentan varianzas iguales. Es decir: no se encuentran diferencias significativas entre las varianzas de los dos grupos.    
+
+Se observa este hallazgo visualmente:
+```{r Boxplot, echo=TRUE, message=FALSE, warning=FALSE}
+ggplot(data = BD, aes(x = inter_dom, y = ToDep, colour = inter_dom)) +
+  geom_boxplot() +
+  labs(title = 'Puntuación total de depresión por tipo de estudiante.',
+       x = 'Tipo de estudiantes',
+       y = 'Puntuación total depresión',
+       caption = "Depresión medida por PHQ-9") +
+  theme_bw() +
+  theme(legend.position = "none")
+```
