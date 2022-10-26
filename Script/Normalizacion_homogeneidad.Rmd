@@ -104,6 +104,7 @@ Se emplea el test de Kolmogorov-Smirnov con la modificación de Lilliefors, pues
 # Muestra mayor a 50 participantes
 nortest::lillie.test(BD$Age[BD$inter_dom=="Inter"]) 
 nortest::lillie.test(BD$Age[BD$inter_dom=="Dom"]) 
+format(4.37e-08, scientific = F)
 ```
 Tanto para el grupo de estudiantes internacionales como para los nacionales, se obtiene un p-value menor de 0.05, por lo cual se concluye que los datos de edad no cumplen el supuesto de normalidad. Se puede comprobar visualmente que hay una distribución sesgada a la izquierda:
 
@@ -121,7 +122,7 @@ ggplot(BD, aes(x=Age, color=inter_dom)) +
 Dado que los datos no cumplen el supuesto de normalidad, se pone a prueba el supuesto de homocedasticidad con la prueba de Levene
 
 ```{r Levene, echo=TRUE, message=FALSE, warning=FALSE}
-car::leveneTest(y=BD$Age, group = BD$inter_dom, center = median)
+car::leveneTest(y=BD$Age, group = as.factor(BD$inter_dom), center = median)
 ```
 Con un p-value mayor de 0.05, no podemos rechazar la hipótesis nula. Por lo tanto suponemos homogeneidad de varianzas (no se encuentran diferencias significativas entre las varianzas de los dos grupos). Se observa este hallazgo visualmente:
 ```{r Boxplot_edad, echo=TRUE, message=FALSE, warning=FALSE}
