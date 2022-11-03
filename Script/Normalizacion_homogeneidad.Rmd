@@ -92,6 +92,12 @@ BD %>% group_by(inter_dom) %>% summarise(
 ) %>% na.omit()
 ```
 
+Para futuros ejercicios guardamos la base generada:
+```{r Guardando_base, echo=TRUE, message=FALSE, warning=FALSE}
+write.csv(BD, file = "../Output/BD.csv")
+```
+
+
 # Normalidad y homocedasticidad de los datos
 
 Se emplea el test de Kolmogorov-Smirnov con la modificación de Lilliefors, pues el tamaño de la muestra de cada grupo es mayor a 50.  
