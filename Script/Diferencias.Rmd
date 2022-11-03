@@ -1,0 +1,102 @@
+---
+title: "Análisis de diferencias"
+author: "Emma Y. Botello-Estrada"
+date:  "`r Sys.Date()`"
+output: rmdformats::downcute
+---
+
+
+```{r Librerias_datos, message=FALSE, warning=FALSE, include=FALSE}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, ggpubr, coin, effsize)
+BD <- read.csv(file = "../Output/BD.csv")
+```
+
+
+# T de student 
+
+## Para muestras independientes
+Prueba de hipótesis que compara la media de dos grupos que no influyen ni afectan uno sobre el otro (son independientes). 
+
+H0 : No hay diferencia en la puntuación total de depresión entre los dos grupos  (MInter=MDom)
+H1 : Existe diferencia en la puntuación total de depresión entre los dos grupos (MInter≠MDom) <- Por esta hipótesis es test de dos colas
+
+Una prueba de dos colas es aquella que puede probar las diferencias en ambas direcciones.
+![dos_colas](https://blog.minitab.com/hs-fs/hubfs/distribucion-t-1.jpg?width=576&name=distribucion-t-1.jpg)
+
+Una hipótesis de una cola sería: 
+H1: La puntuación total de depresión es mayor en el grupo de estudiantes internacionales (MInter>MDom)
+H1: La puntuación total de depresión es menor en el grupo de estudiantes internacionales (MInter<MDom)
+
+![una_cola](https://1.bp.blogspot.com/-EdHQ6iYn46Y/Ws-M-PBc_oI/AAAAAAAAAX8/n0_ynntB4BMIGA7WCDEWIgoYCcOdhVb9ACLcBGAs/s1600/eCurvaT_1.jpg)
+
+```{r comparacion_dep_t_test, echo=TRUE, message=FALSE, warning=FALSE}
+dep_inter <- BD$ToDep[BD$inter_dom =="Inter"]
+dep_dom   <- BD$ToDep[BD$inter_dom =="Dom"]
+t.test(x=dep_inter, y=dep_dom, alternative = "two.sided", mu=0, var.equal = T, conf.level = 0.95)
+effsize::cohen.d(formula=ToDep~inter_dom, data=BD, paired=F)
+```
+Dado que el p-value (0.7573) es mayor que alpha (0.05) , no se dispone de evidencia suficiente para considerar que existe una diferencia entre la edad del grupo TEA y la del grupo DT. El tamaño de efecto es insignificante (-.053) (Cohen 1992).
+
+Se genera una visualización para reportar el hallazgo:
+
+```{r Boxplot_dep, echo=TRUE, message=FALSE, warning=FALSE}
+ggplot(data = BD, aes(x = inter_dom, y = ToDep, colour = inter_dom)) +
+  geom_boxplot() +
+  labs(title = 'Puntuación total de depresión por tipo de estudiante.',
+       x = 'Tipo de estudiantes',
+       y = 'Puntuación total depresión',
+       caption = "Depresión medida por PHQ-9") +
+  stat_compare_means(method = "t.test")+ # Agrega p-values comparando grupos
+  theme_bw() +
+  theme(legend.position = "none")
+```
+## Para muestras relacionadas
+Prueba de hipótesis que compara la media de dos grupos que influyen y/o afectan uno sobre el otro (están relacionados y/o se tienen medidas repetidas).
+
+Podríamos asumir (erróneamente) que los datos analizados en la sección anterior están pareados/relacionados. El código para esta clase de análisis sería el siguiente:
+
+```{r comparacion_dep_pareados, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
+t.test(x=dep_inter, y=dep_dom, alternative = "two.sided", mu=0, paired= TRUE,var.equal = T, conf.level = 0.95)
+effsize::cohen.d(formula=ToDep~inter_dom | X, data=BD, paired=TRUE)
+```
+Nótese que el argumento que cambia es ```paired=TRUE``` y que en la estimación de la d de Cohen la fórmula sigue el formato ```valor ~ tratamiento | Sujeto(id)```
+
+Consultar un ejemplo de t de student para muestras relacionadas en [este link.](https://rpubs.com/Joaquin_AR/218467)
+
+# Test U de Mann-Whitney
+Es la alternativa no paramétrica a la prueba T de student para muestras independientes. Este test trabaja con medianas, no con medias.
+
+Se calcula el tamaño del efecto con la fórmula r= Z/sqrt(n1+n2). Una de las clasificaciones del tamaño del efecto más utilizada es:
+
+0.1 = pequeño
+0.3 = mediano
+≥0.5 = grande
+
+```{r}
+coin::wilcox_test(Age ~ as.factor(inter_dom), data = BD, distribution = "exact", conf.int=0.95)
+
+tamanyo_efecto <- 2.1263/sqrt(66 + 66)
+tamanyo_efecto
+```
+
+El p-value obtenido (<.05) indica evidencias significativas de que la edad es diferente entre los grupos. Se obtiene un tamaño del efecto pequeño (r=.18).
+
+Consultar más información sobre el test en [este link.](https://www.cienciadedatos.net/documentos/17_mann%E2%80%93whitney_u_test#Mann_Whitney_Wilcoxon)
+
+Se genera una visualización para reportar el hallazgo:
+
+```{r Boxplot_dep, echo=TRUE, message=FALSE, warning=FALSE}
+
+ggplot(data = BD, aes(x = inter_dom, y = Age, colour = inter_dom)) +
+  geom_boxplot() +
+  labs(title = 'Edad por grupo',
+       x = 'Tipo de estudiantes',
+       y = 'Edad') +
+  geom_label(label="Mann-Whithney, p= 0.03", 
+    x="Dom",y=28,
+    label.size=0.0008)+ # Agrega p-value manualmente
+  theme_bw() +
+  theme(legend.position = "none")
+```
+Se observa que la edad es mayor en el grupo Dom. 
