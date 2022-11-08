@@ -34,9 +34,9 @@ H1: La puntuación total de depresión es menor en el grupo de estudiantes inter
 dep_inter <- BD$ToDep[BD$inter_dom =="Inter"]
 dep_dom   <- BD$ToDep[BD$inter_dom =="Dom"]
 t.test(x=dep_inter, y=dep_dom, alternative = "two.sided", mu=0, var.equal = T, conf.level = 0.95)
-effsize::cohen.d(formula=ToDep~inter_dom, data=BD, paired=F)
 ```
-Dado que el p-value (0.7573) es mayor que alpha (0.05) , no se dispone de evidencia suficiente para considerar que existe una diferencia entre la edad del grupo TEA y la del grupo DT. El tamaño de efecto es insignificante (-.053) (Cohen 1992).
+Dado que el p-value (0.7573) es mayor que alpha (0.05), no se dispone de evidencia suficiente para considerar que existe una diferencia entre la edad del grupo TEA y la del grupo DT. 
+
 
 Se genera una visualización para reportar el hallazgo:
 
@@ -51,6 +51,15 @@ ggplot(data = BD, aes(x = inter_dom, y = ToDep, colour = inter_dom)) +
   theme_bw() +
   theme(legend.position = "none")
 ```
+
+En los casos en que una prueba resulta significativa, esto no implica directamente que el resultado tenga interés práctico. Por eso es necesario introducir otro concepto: el de tamaño del efecto. Se trata de una cuantificación de lo importante que es una diferencia o un coeficiente, luego de haber obtenido un resultado significativo en la prueba de hipótesis. El tamaño del efecto expresa de manera estandarizada cuán diferente de cero es una diferencia o un coeficiente. Para decidir cuándo un efecto es grande mediano o pequeño, existen criterios, casi todos propuestos por Cohen. 
+
+```{r tamanio_efecto, echo=TRUE, message=FALSE, warning=FALSE}
+effsize::cohen.d(formula=ToDep~inter_dom, data=BD, paired=F)
+```
+
+El tamaño de efecto es insignificante (-.053) (Cohen 1992).
+
 ## Para muestras relacionadas
 Prueba de hipótesis que compara la media de dos grupos que influyen y/o afectan uno sobre el otro (están relacionados y/o se tienen medidas repetidas).
 
@@ -100,3 +109,27 @@ ggplot(data = BD, aes(x = inter_dom, y = Age, colour = inter_dom)) +
   theme(legend.position = "none")
 ```
 Se observa que la edad es mayor en el grupo Dom. 
+
+# Prueba de Wilcoxon
+Es la alternativa no paramétrica a la prueba T de student para muestras pareadas. 
+
+Nuevamente, asumamos erróneamente que tenemos datos pareados (ej. registros de la edad de los mismos sujetos en 2 puntos temporales, digamos Age1 y Age2). El código a usar sería el siguiente:
+```{r}
+wilcox.test(BD$Age, BD$Age, paired = TRUE)
+#wilcox.test(BD$Age1,BD$Age2, paired = TRUE)
+```
+Nótese que se incluye el argumento ```paired=TRUE``` para indicar que se está trabajando con una muestra pareada. Nótese también que el código arroja un NA en el p-value pues los datos que proporcionamos en realidad no son pareados y es la misma variable. 
+
+# ANOVA de 1 vía
+
+```{r}
+unique(BD$Japanese_cate)
+m1 <- aov(ToDep ~ Japanese_cate, data = BD)
+summary(m1)
+```
+
+# Kruskall Wallis
+```{r}
+kruskal.test(Age ~ Japanese_cate, data = BD)
+```
+
