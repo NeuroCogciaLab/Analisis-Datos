@@ -8,7 +8,7 @@ output: rmdformats::downcute
 
 ```{r Librerias_datos, message=FALSE, warning=FALSE, include=FALSE}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, ggpubr, coin, effsize)
+pacman::p_load(tidyverse, ggplot2, ggpubr, coin, effsize,PMCMRplus)
 BD <- read.csv(file = "../Output/BD.csv")
 ```
 
@@ -121,15 +121,93 @@ wilcox.test(BD$Age, BD$Age, paired = TRUE)
 Nótese que se incluye el argumento ```paired=TRUE``` para indicar que se está trabajando con una muestra pareada. Nótese también que el código arroja un NA en el p-value pues los datos que proporcionamos en realidad no son pareados y es la misma variable. 
 
 # ANOVA de 1 vía
+Prueba de hipótesis que permite saber si existen diferencias estadísticamente significativas entre más de dos grupos. Pertenece a la estadística paramétrica.
+```{r}
+# Observamos una variable de la base que divide a la muestra en más de dos grupos:
+unique(BD$DepSev)
+
+# Hacemos una ANOVA y resumimos los resultados:
+m1 <- aov(ToDep ~ DepSev, data = BD)
+summary(m1)
+
+format(2e-16, scientific = F)
+```
+Dado que el valor de p es menor que alpha (.001) se tiene evidencia estadísticamente significativa de que existen diferencias en la puntuación de depresión entre los grupos.
+
+Si hemos detectado diferencias significativas entre las medias de las poblaciones. ¿Sería posible saber cuáles son los grupos que generan estas diferencias? Para eso se usan pruebas post-hoc como la prueba de Tukey.
 
 ```{r}
-unique(BD$Japanese_cate)
-m1 <- aov(ToDep ~ Japanese_cate, data = BD)
-summary(m1)
+TukeyHSD(m1)
+```
+Se detectan diferencias estadísticamente significativas entre todos los grupos.
+
+Generamos una visualización:
+
+```{r}
+ggplot(data = BD, aes(x = DepSev, y = ToDep, colour = DepSev)) +
+  geom_boxplot() +
+  labs(title = 'Puntuación total de depresión por gravedad del trastorno depresivo',
+       x = 'Gravedad del trastorno depresivo',
+       y = 'Puntuación total depresión',
+       caption = "Depresión medida por PHQ-9") +
+  stat_compare_means(method = "anova")+ # Agrega p-values comparando grupos
+  theme_bw() +
+  theme(legend.position = "none")
+```
+Acomodamos los datos para que las etiquetas estén ordenadas:
+```{r}
+
+BD$DepSev<-factor(BD$DepSev,
+       levels = c("Min","Mild","Mod","ModSev","Sev"),
+       labels = c("Min","Mild","Mod","ModSev","Sev")
+        )
+
+ggplot(data = BD, aes(x = DepSev, y = ToDep, colour = DepSev)) +
+  geom_boxplot() +
+  labs(title = 'Puntuación total de depresión por gravedad del trastorno depresivo',
+       x = 'Gravedad del trastorno depresivo',
+       y = 'Puntuación total depresión',
+       caption = "Depresión medida por PHQ-9") +
+  stat_compare_means(method = "anova")+ # Agrega p-values comparando grupos
+  theme_bw() +
+  theme(legend.position = "none")
 ```
 
+
 # Kruskall Wallis
+
+Alternativa no paramétrica a la prueba ANOVA de 1 vía.
 ```{r}
+unique(BD$Japanese_cate)
 kruskal.test(Age ~ Japanese_cate, data = BD)
 ```
 
+Se detectan diferencias estadísticamente significativas en la edad entre todos los grupos.
+
+Se emplea como post hoc la prueba de Nemenyo con Chi-cuadrado (aproximación para muestras independientes)
+
+
+```{r}
+kwAllPairsNemenyiTest(x=BD$Age, g=as.factor(BD$Japanese_cate), formula=Age~Japanese_cate, dist = "Chisq")
+
+```
+La única diferencia detectada es entre los participantes con alto vs bajo dominio del japonés. 
+
+Visualizamos:
+
+```{r}
+BD$Japanese_cate<-factor(BD$Japanese_cate,
+       levels = c("Low","Average","High"),
+       labels = c("Low","Average","High")
+        )
+
+ggplot(data = BD, aes(x = Japanese_cate, y = Age, colour = Japanese_cate)) +
+  geom_boxplot() +
+  labs(title = 'Puntuación total de depresión por gravedad del trastorno depresivo',
+       x = 'Gravedad del trastorno depresivo',
+       y = 'Puntuación total depresión',
+       caption = "Depresión medida por PHQ-9") +
+  stat_compare_means(method = "kruskal.test")+ # Agrega p-values comparando grupos
+  theme_bw() +
+  theme(legend.position = "none")
+```

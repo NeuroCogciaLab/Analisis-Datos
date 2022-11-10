@@ -55,7 +55,7 @@ BD %>% group_by(inter_dom) %>% summarise(
   error_estandar=ds/sqrt(muestra),
   i_confianza_low= media-2*error_estandar,
   i_confianza_up= media+2*error_estandar
-) %>% na.omit()
+)
 ```
 
 Notamos que el número de casos (muestra) es diferente para ambos grupos (nacional vs internacional), por motivos prácticos vamos a hacer que ambos grupos tengan la misma cantidad de estudiantes, seleccionando al azar los casos que van a eliminarse (se tienen 176 estudiantes internacionales, se eliminarán 110 para tener 66). Para ello primero generamos una variable que identifique a cada participante (ID)
@@ -64,7 +64,7 @@ Notamos que el número de casos (muestra) es diferente para ambos grupos (nacion
 BD<- BD %>% mutate(ID=1:242)
 ```
 
-Ahora elegimos al azar a 134 participantes del grupo de estudiantes internacionales y los eliminamos de nuestro conjunto de datos
+Ahora elegimos al azar a 110 participantes del grupo de estudiantes internacionales y los eliminamos de nuestro conjunto de datos
 ```{r Seleccion_azar, echo=TRUE}
 set.seed(123) # Se pone una semilla para que siempre salga la misma selección a pesar de que se hace al azar
 
@@ -115,7 +115,7 @@ format(4.37e-08, scientific = F)
 Tanto para el grupo de estudiantes internacionales como para los nacionales, se obtiene un p-value menor de 0.05, por lo cual se concluye que los datos de edad no cumplen el supuesto de normalidad. Se puede comprobar visualmente que hay una distribución sesgada a la izquierda:
 
 ```{r}
-ggplot(BD, aes(x=Age, color=inter_dom)) +
+ggplot(data= BD, aes(x=Age, color=inter_dom)) +
   geom_density() +
   scale_color_manual(values = c("#42D9C8","#D63230"))+
        theme_minimal()+
@@ -123,6 +123,7 @@ ggplot(BD, aes(x=Age, color=inter_dom)) +
        color = 'Grupo',
        x = 'Edad', 
        y='Densidad')
+
 ```
 
 Dado que los datos no cumplen el supuesto de normalidad, se pone a prueba el supuesto de homocedasticidad con la prueba de Levene
@@ -133,10 +134,14 @@ car::leveneTest(y=BD$Age, group = as.factor(BD$inter_dom), center = median)
 Con un p-value mayor de 0.05, no podemos rechazar la hipótesis nula. Por lo tanto suponemos homogeneidad de varianzas (no se encuentran diferencias significativas entre las varianzas de los dos grupos). Se observa este hallazgo visualmente:
 ```{r Boxplot_edad, echo=TRUE, message=FALSE, warning=FALSE}
 ggplot(data = BD, aes(x = inter_dom, y = Age, colour = inter_dom)) +
+  scale_color_manual(values = c("#42D9C8","#D63230"))+
   geom_boxplot() +
-  labs(title = 'Edad por grupo',
+  labs(
+    title = 'Edad por grupo',
        x = 'Tipo de estudiantes',
-       y = 'Edad') +
+       y = 'Edad',
+       caption="Levene, p=.48"
+    ) +
   theme_bw() +
   theme(legend.position = "none")
 ```
@@ -164,7 +169,7 @@ ggplot(BD, aes(x=ToDep, color=inter_dom)) +
 Dado que los datos cumplen el supuesto de normalidad, se pone a prueba el supuesto de homocedasticidad con la prueba de Bartlett 
 
 ```{r Bartlett, echo=TRUE, message=FALSE, warning=FALSE}
-bartlett.test(BD$ToDep~BD$inter_dom)
+bartlett.test(BD$ToDep ~ BD$inter_dom)
 ```
 Como el p-value es un valor mayor de 0.05, aceptamos la hipótesis nula (H0). Esto nos indica que nuestras dos muestras presentan varianzas iguales. Es decir: no se encuentran diferencias significativas entre las varianzas de los dos grupos.    
 
